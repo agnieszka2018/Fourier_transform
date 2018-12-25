@@ -5,10 +5,8 @@
  */
 package fourier;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
 import static java.lang.Math.*;
+import Jama.Matrix; //importuje class Matrix
 import java.util.Scanner; //do wczytawania z klawiatury
 
 /**
@@ -31,9 +29,9 @@ public class Fourier {
         double tablica[][] = new double[wielkosc + 1][2];    //[i][0] to część rzeczywista, [i][1] to część urojona;
 
         for (int i = 0; i <= wielkosc; i++) {
-            System.out.println("współczynnik (część rzeczywista) przy x stopnia: " + i);
+            System.out.println("współczynnik (część rzeczywista) przy x stopnia " + i + ":");
             tablica[i][0] = scan.nextDouble();
-            System.out.print("współczynnik (część urojona) przy x stopnia: " + i);
+            System.out.println("współczynnik (część urojona) przy x stopnia " + i + ":");
             tablica[i][1] = scan.nextDouble();
         }
 
@@ -57,8 +55,7 @@ public class Fourier {
         double suma = 0.0;
 
         for (int i = 0; i <= wielkosc; i++) {
-
-            suma += wielomian[i][0] * wartosc_x;
+            suma += (wielomian[i][0] * wartosc_x);
             wartosc_x *= re;    //z każdym krokiem domnażamy kolejny raz przez x;
         }
 
@@ -69,13 +66,37 @@ public class Fourier {
 
     public static double[][] iloczyn_wielomianu_definicja(double[][] wielomian_pierwszy, int stopien_pierwszy, double[][] wielomian_drugi, int stopien_drugi) {
 
-         double tablica[][] = new double[stopien_pierwszy + stopien_drugi + 1][2];
-         
-         return tablica;
+        int stopien_wynikowy = stopien_pierwszy + stopien_drugi;
+
+        double tablica[][] = new double[stopien_wynikowy + 1][2];//stopien wynikowego wielomianu jest równy sumie stopni wielomianu pierwszego i wielomianu drugiego, ale trzeba jeszcze dodac miejsce na wyraz wolny
+
+        //mnożenie z definicji??????
+        double suma = 0.0;
+        for (int i = 0; i <= stopien_wynikowy; i++) {
+            for (int j = 0; j <= i; j++) {
+
+                if ((j > stopien_pierwszy) || ((i + j) > stopien_drugi)) {
+                    suma += 0;
+                } else {
+                    suma += (wielomian_pierwszy[j][0] * wielomian_drugi[i + j][0]);
+                }
+            }
+            tablica[i][0] = suma;
+        }
+
+        return tablica;
     }
 
     public static void main(String[] args) {
 
+        //wczytywanie
+        double[][] wielomian_pierwszy = wczytaj_wielomian(); //tablica ze współczynnikami przy kolejnych potęgach x - wielomian pierwszy;
+        double[][] wielomian_drugi = wczytaj_wielomian(); //tablica ze współczynnikami przy kolejnych potęgach x - wielomian drugi;
+
+        //obliczanie wartości
+        //mnożenie wielomianów z definicji
+        //mnożenie wielomianów używając macierzy
+        //mnożenie wielomianów FFT
         scan.close();
     }
 
