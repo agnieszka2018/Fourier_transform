@@ -20,68 +20,59 @@ public class Fourier {
      */
     static Scanner scan = new Scanner(System.in);
 
-    public static double[][] wczytaj_wielomian() {  //ale mamy dwa wielomiany! dwa razy wywołać funkcję
+    public static double[] wczytaj_wielomian() {  //ale mamy dwa wielomiany! dwa razy wywołać funkcję; zrobić oba stopnia n, tylko uzupełnić zerami
         System.out.print("Podaj stopień wielomianu: ");
-
         int wielkosc; //stopień wielomianu
         wielkosc = scan.nextInt();
 
-        double tablica[][] = new double[wielkosc + 1][2];    //[i][0] to część rzeczywista, [i][1] to część urojona;
+        double tablica[] = new double[wielkosc + 1];
 
         for (int i = 0; i <= wielkosc; i++) {
-            System.out.println("współczynnik (część rzeczywista) przy x stopnia " + i + ":");
-            tablica[i][0] = scan.nextDouble();
-            System.out.println("współczynnik (część urojona) przy x stopnia " + i + ":");
-            tablica[i][1] = scan.nextDouble();
+            System.out.println("współczynnik przy x stopnia " + i + ":");
+            tablica[i] = scan.nextDouble();
         }
 
         return tablica;
     }
 
-    public static double[][] oblicz_wartosc_wielomianu(double[][] wielomian, int wielkosc) { //argumentem funkcji jest wczytany wielomian
-
-        double tablica[][] = new double[1][2];   // wartość wielomianu -> [0][0] to część rzeczywista, [0][1] to część urojona;
+    public static double oblicz_wartosc_wielomianu(double[] wielomian, int wielkosc) { //argumentem funkcji jest wczytany wielomian
 
         System.out.println("podaj dla jakiego x chcesz obliczyć wartość wielomianu?");//czy zarówno x jak i współczynniki przy odpowiednich stopniach wielomianu mają być liczbami zespolonymi????
-        System.out.println("podaj część rzeczywistą x:");
-        double re; //część rzeczywista
-        re = scan.nextDouble();
-        System.out.println("podaj część urojoną x:");
-        double im;  //część zespolona 
-        im = scan.nextDouble();
+        double x; //część rzeczywista
+        x = scan.nextDouble();
 
-        //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ na razie mnożenie tylko części rzeczywistych ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-        double wartosc_x = 1.0;
+        //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ na razie mnożenie tylko liczb rzeczywistych ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+        double akt_wartosc_x = 1.0;
         double suma = 0.0;
 
         for (int i = 0; i <= wielkosc; i++) {
-            suma += (wielomian[i][0] * wartosc_x);
-            wartosc_x *= re;    //z każdym krokiem domnażamy kolejny raz przez x;
+            suma += (wielomian[i] * akt_wartosc_x);
+            akt_wartosc_x *= x;    //z każdym krokiem domnażamy kolejny raz przez x;
         }
 
-        tablica[0][0] = suma;   //tylko część rzeczywista
-
-        return tablica;
+        System.out.println("Suma wartości wynosi: " + suma);
+        return suma;    //wyliczona wartość wielomianu z zależnośco od x;
     }
 
-    public static double[][] iloczyn_wielomianu_definicja(double[][] wielomian_pierwszy, int stopien_pierwszy, double[][] wielomian_drugi, int stopien_drugi) {
+    public static double[] iloczyn_wielomianu_definicja(double[] wielomian_pierwszy, int stopien_pierwszy, double[] wielomian_drugi, int stopien_drugi) {
 
-        int stopien_wynikowy = stopien_pierwszy + stopien_drugi;
+        int k = stopien_pierwszy + stopien_drugi;    //stopień wynikowy m+n (ew. n+n);
 
-        double tablica[][] = new double[stopien_wynikowy + 1][2];//stopien wynikowego wielomianu jest równy sumie stopni wielomianu pierwszego i wielomianu drugiego, ale trzeba jeszcze dodac miejsce na wyraz wolny
+        double tablica[] = new double[k + 1];//stopien wynikowego wielomianu jest równy sumie stopni wielomianu pierwszego i wielomianu drugiego, ale trzeba jeszcze dodac miejsce na wyraz wolny
 
-        //mnożenie z definicji??????
+        //mnożenie z definicji
         double suma = 0.0;
-        for (int i = 0; i <= stopien_wynikowy; i++) {
-            for (int j = 0; j <= i; j++) {
 
-                if ((j > stopien_pierwszy) || ((i + j) > stopien_drugi)) {
+        for (int i = 0; i <= k; i++) {
+            for (int j = 0; j <= i; j++) {
+                if ((j > stopien_pierwszy) || ((i - j) > stopien_drugi)) {
                     suma += 0;
                 } else {
-                    suma += (wielomian_pierwszy[j][0] * wielomian_drugi[i + j][0]);
+                    suma += wielomian_pierwszy[j] * wielomian_drugi[i - j];
                 }
             }
-            tablica[i][0] = suma;
+            tablica[i] = suma;
+            suma = 0.0;
         }
 
         return tablica;
@@ -90,12 +81,16 @@ public class Fourier {
     public static void main(String[] args) {
 
         //wczytywanie
-        double[][] wielomian_pierwszy = wczytaj_wielomian(); //tablica ze współczynnikami przy kolejnych potęgach x - wielomian pierwszy;
-        double[][] wielomian_drugi = wczytaj_wielomian(); //tablica ze współczynnikami przy kolejnych potęgach x - wielomian drugi;
+        double[] wielomian_pierwszy = wczytaj_wielomian(); //tablica ze współczynnikami przy kolejnych potęgach x - wielomian pierwszy;
+        double[] wielomian_drugi = wczytaj_wielomian(); //tablica ze współczynnikami przy kolejnych potęgach x - wielomian drugi;
 
         //obliczanie wartości
+        oblicz_wartosc_wielomianu(wielomian_pierwszy, 3);   //dla wielomianu stopnia 3!
+
         //mnożenie wielomianów z definicji
-        //mnożenie wielomianów używając macierzy
+        iloczyn_wielomianu_definicja(wielomian_pierwszy, 3, wielomian_drugi, 3);     //dla wielomianów stopnia 3!
+
+        //mnożenie wielomianów używając macierzy (DFT)
         //mnożenie wielomianów FFT
         scan.close();
     }
